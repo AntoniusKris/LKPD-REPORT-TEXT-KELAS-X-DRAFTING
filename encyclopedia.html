@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wonder Encyclopedia</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fffdf7;
+    --card-radius: 24px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HOME SCREEN ── */
+  #home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+    background: linear-gradient(160deg, #fff7e6 0%, #ffecd2 50%, #e8f5e9 100%);
+  }
+
+  .home-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    color: #2d2d2d;
+    text-align: center;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .home-subtitle {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 40px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 18px;
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .topic-card {
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 24px 12px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s;
+    border: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .topic-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: calc(var(--card-radius) - 3px);
+  }
+
+  .topic-card:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 16px 40px rgba(0,0,0,0.13); }
+  .topic-card:active { transform: scale(0.97); }
+
+  .topic-card .card-emoji {
+    font-size: 2.6rem;
+    line-height: 1;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+  }
+
+  .topic-card:nth-child(2) .card-emoji { animation-delay: 0.3s; }
+  .topic-card:nth-child(3) .card-emoji { animation-delay: 0.6s; }
+  .topic-card:nth-child(4) .card-emoji { animation-delay: 0.9s; }
+  .topic-card:nth-child(5) .card-emoji { animation-delay: 1.2s; }
+  .topic-card:nth-child(6) .card-emoji { animation-delay: 1.5s; }
+  .topic-card:nth-child(7) .card-emoji { animation-delay: 1.8s; }
+  .topic-card:nth-child(8) .card-emoji { animation-delay: 2.1s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .card-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    text-align: center;
+    color: #2d2d2d;
+    line-height: 1.2;
+  }
+
+  .card-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* card theme colors */
+  .card-animal  { border-color: #a8e6cf; background: linear-gradient(135deg, #fff 60%, #e8faf3); }
+  .card-animal .card-tag  { background: #a8e6cf; color: #1a6b4a; }
+  .card-object  { border-color: #ffd3b6; background: linear-gradient(135deg, #fff 60%, #fff4ec); }
+  .card-object .card-tag  { background: #ffd3b6; color: #7a3b1e; }
+  .card-food    { border-color: #ffaaa5; background: linear-gradient(135deg, #fff 60%, #fff0ef); }
+  .card-food .card-tag    { background: #ffaaa5; color: #7a1e1e; }
+
+  /* ── ARTICLE PAGE ── */
+  #article-page {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  .article-header {
+    position: relative;
+    padding: 32px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    min-height: 200px;
+    justify-content: flex-end;
+  }
+
+  .header-blob {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    transition: background 0.5s;
+  }
+
+  .article-emoji-big {
+    font-size: 5rem;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.18));
+    animation: bounceIn 0.6s cubic-bezier(.34,1.56,.64,1);
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+  }
+
+  @keyframes bounceIn {
+    from { transform: scale(0.3) translateY(40px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  .article-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.8rem, 6vw, 2.8rem);
+    color: white;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    margin-top: 8px;
+  }
+
+  .article-category-badge {
+    position: relative;
+    z-index: 1;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 14px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.3);
+    color: white;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 8px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* top nav */
+  .top-nav {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+  }
+
+  .btn-home {
+    background: rgba(255,255,255,0.3);
+    border: none;
+    border-radius: 50px;
+    padding: 8px 16px;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: background 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-home:hover { background: rgba(255,255,255,0.5); transform: scale(1.05); }
+
+  .topic-counter {
+    background: rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    color: white;
+    font-weight: 800;
+    font-size: 0.85rem;
+    backdrop-filter: blur(4px);
+  }
+
+  /* article body */
+  .article-body {
+    flex: 1;
+    padding: 28px 20px 100px;
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  @media(min-width: 500px) { .stats-bar { grid-template-columns: repeat(4, 1fr); } }
+
+  .stat-chip {
+    background: white;
+    border-radius: 16px;
+    padding: 14px 10px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    animation: slideUp 0.5s both;
+  }
+
+  .stat-chip .stat-val {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: #2d2d2d;
+    display: block;
+  }
+
+  .stat-chip .stat-key {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* sections */
+  .section {
+    background: white;
+    border-radius: var(--card-radius);
+    padding: 20px 20px 16px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    animation: slideUp 0.5s both;
+    border-left: 5px solid var(--accent, #ccc);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.15rem;
+    color: var(--accent, #333);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section p {
+    color: #555;
+    line-height: 1.7;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+
+  .section ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .section ul li {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding-left: 22px;
+    position: relative;
+  }
+
+  .section ul li::before {
+    content: '▸';
+    color: var(--accent, #ccc);
+    position: absolute;
+    left: 0;
+    font-size: 0.85rem;
+    top: 2px;
+  }
+
+  .section ul li strong {
+    color: #2d2d2d;
+    font-weight: 800;
+  }
+
+  /* bottom nav */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: rgba(255,253,247,0.92);
+    backdrop-filter: blur(12px);
+    border-top: 2px solid #f0ece0;
+    z-index: 100;
+  }
+
+  .nav-btn {
+    background: white;
+    border: 2px solid #eee;
+    border-radius: 50px;
+    padding: 10px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #2d2d2d;
+  }
+
+  .nav-btn:hover { transform: scale(1.06); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+  .nav-btn.next-btn { background: var(--accent, #ccc); color: white; border-color: transparent; }
+
+  .nav-topic-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.95rem;
+    color: #888;
+    text-align: center;
+    flex: 1;
+    padding: 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* page transition */
+  .fade-enter { animation: fadeIn 0.4s both; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .fade-exit { animation: fadeOut 0.25s both; }
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+  }
+
+  /* coming soon */
+  .coming-soon {
+    text-align: center;
+    padding: 60px 20px;
+    color: #bbb;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+  }
+  .coming-soon span { display: block; font-size: 3rem; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div id="home">
+  <div class="home-title">✨ Wonder Pedia</div>
+  <div class="home-subtitle">8 topics · tap to explore</div>
+  <div class="topic-grid">
+    <div class="topic-card card-animal" onclick="openTopic(0)">
+      <img class="card-emoji" src="https://i.ibb.co.com/3yLrWR4S/Create-a-high-quality-202604061314-4-removebg-preview.png" alt="Elephant">
+      <span class="card-label">Elephant</span>
+      <span class="card-tag">Animal</span>
+    </div>
+    <div class="topic-card card-animal" onclick="openTopic(1)">
+      <img class="card-emoji" src="https://i.ibb.co.com/rRYrc9k3/Create-a-high-quality-202604061315-removebg-preview.png" alt="Raccoon">
+      <span class="card-label">Racoon</span>
+      <span class="card-tag">Animal</span>
+    </div>
+    <div class="topic-card card-object" onclick="openTopic(2)">
+      <img class="card-emoji" src="https://i.ibb.co.com/b5bcST7Y/Create-a-high-quality-202604061314-removebg-preview.png" alt="SLR Camera">
+      <span class="card-label">SLR Camera</span>
+      <span class="card-tag">Object</span>
+    </div>
+    <div class="topic-card card-object" onclick="openTopic(3)">
+      <img class="card-emoji" src="https://i.ibb.co.com/0RYTd7vy/Create-a-high-quality-202604061314-1-removebg-preview.png" alt="Electric Desk Fan">
+      <span class="card-label">Electric Desk Fan</span>
+      <span class="card-tag">Object</span>
+    </div>
+    <div class="topic-card card-food" onclick="openTopic(4)">
+      <img class="card-emoji" src="https://i.ibb.co.com/0Rd2Dyd9/Create-a-high-quality-202604061314-2-removebg-preview.png" alt="Tahu Gimbal">
+      <span class="card-label">Tahu Gimbal</span>
+      <span class="card-tag">Food</span>
+    </div>
+    <div class="topic-card card-food" onclick="openTopic(5)">
+      <img class="card-emoji" src="https://i.ibb.co.com/W4Q6c7Jv/Create-a-high-quality-202604061314-3-removebg-preview.png" alt="Lotek">
+      <span class="card-label">Lotek</span>
+      <span class="card-tag">Food</span>
+    </div>
+    <div class="topic-card card-object" onclick="openTopic(6)">
+      <img class="card-emoji" src="https://i.ibb.co.com/mr8sHmbX/Create-a-high-quality-202604061315-3-removebg-preview.png" alt="Parfume">
+      <span class="card-label">Parfume</span>
+      <span class="card-tag">Object</span>
+    </div>
+    <div class="topic-card card-food" onclick="openTopic(7)">
+      <img class="card-emoji" src="https://i.ibb.co.com/YF0rBGQF/Create-a-high-quality-202604061315-1-removebg-preview.png" alt="Olive Oil">
+      <span class="card-label">Olive Oil</span>
+      <span class="card-tag">Food</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ARTICLE PAGE ══ -->
+<div id="article-page">
+  <div class="article-header">
+    <div class="header-blob" id="headerBlob"></div>
+    <div class="top-nav">
+      <button class="btn-home" onclick="goHome()">🏠 Home</button>
+      <div class="topic-counter" id="topicCounter">1 / 8</div>
+    </div>
+    <img class="article-emoji-big" id="articleEmoji" src="" alt="topic image">
+    <div class="article-title" id="articleTitle">Elephant</div>
+    <div class="article-category-badge" id="articleCategory">Animal</div>
+  </div>
+
+  <div class="article-body" id="articleBody"></div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">← Prev</button>
+    <div class="nav-topic-name" id="navTopicName"></div>
+    <button class="nav-btn next-btn" id="nextBtn" onclick="navigate(1)">Next →</button>
+  </div>
+</div>
+
+<script>
+const topics = [
+  {
+    id: 0,
+    title: "Elephant",
+    emoji: "🐘",
+    img: "https://i.ibb.co.com/3yLrWR4S/Create-a-high-quality-202604061314-4-removebg-preview.png",
+    category: "Animal",
+    accent: "#4caf82",
+    gradient: "linear-gradient(160deg, #43a86b 0%, #1e7a4e 100%)",
+    stats: [
+      { val: "6,000 kg", key: "Weight" },
+      { val: "150 kg/day", key: "Food" },
+      { val: "2 hrs", key: "Sleep" },
+      { val: "60–70 yrs", key: "Lifespan" },
+    ],
+    sections: [
+      {
+        icon: "🌍",
+        title: "Meet the Three Cousins",
+        content: `<p>There are actually three different kinds of elephants in the world:</p>
+        <ul>
+          <li><strong>African Bush Elephant:</strong> The "King" of land animals. They are the biggest and live on the grassy plains.</li>
+          <li><strong>African Forest Elephant:</strong> Smaller and live in thick jungles. Their tusks point straight down so they don't get stuck in trees.</li>
+          <li><strong>Asian Elephant:</strong> These live in places like India and Indonesia. They have smaller ears and two "bumps" on the top of their heads.</li>
+        </ul>`
+      },
+      {
+        icon: "🔬",
+        title: "Amazing Body Parts",
+        content: `<ul>
+          <li><strong>The Trunk (The Multi-Tool):</strong> Imagine if your nose and top lip were a long arm. It has no bones, only about 40,000 muscles! Strong enough to pull down a tree, yet gentle enough to pick up a single peanut.</li>
+          <li><strong>Tusks (The Swiss Army Knife):</strong> Actually just two very long teeth. Used for digging for water, peeling bark off trees to eat, and protecting themselves.</li>
+          <li><strong>Big Ears (The Air Conditioner):</strong> Elephants don't sweat like we do. They flap their big ears to cool down the blood inside them, keeping the whole body cool.</li>
+          <li><strong>The Feet (Walking on Toes):</strong> Despite being heavy, elephants are very quiet walkers. They walk on their tiptoes with a thick cushion of fat under their heels to soak up the weight.</li>
+        </ul>`
+      },
+      {
+        icon: "🧠",
+        title: "Super Senses",
+        content: `<ul>
+          <li><strong>Listening with Feet:</strong> Elephants make a very low "rumble" that humans can't hear. This sound travels through the ground and other elephants can "feel" these vibrations through their feet from miles away.</li>
+          <li><strong>Super Memory:</strong> Elephants have the biggest brain of any land animal. They can remember where a water hole is even if they haven't visited it for 20 years.</li>
+        </ul>`
+      },
+      {
+        icon: "🌿",
+        title: "Why They Are Nature's Engineers",
+        content: `<ul>
+          <li><strong>Making Paths:</strong> They are so big that when they walk through the woods, they clear paths for smaller animals.</li>
+          <li><strong>Planting Trees:</strong> When they eat fruit, the seeds come out in their poop — "planting" new trees all over the forest.</li>
+          <li><strong>Finding Water:</strong> When it's dry, elephants dig holes in the ground to find water, creating "wells" that other animals use to survive.</li>
+        </ul>`
+      },
+      {
+        icon: "👨‍👩‍👧‍👦",
+        title: "Family Life",
+        content: `<ul>
+          <li><strong>Girls are the Boss:</strong> Elephant families are led by the Matriarch — the oldest and wisest female. All the sisters and babies follow her.</li>
+          <li><strong>The Longest Wait:</strong> It takes almost two years (22 months!) for a mother elephant to grow a baby. That's the longest pregnancy of any animal.</li>
+          <li><strong>Feelings:</strong> Elephants are very emotional. They have been seen "crying" and staying very quiet and sad when a family member dies.</li>
+        </ul>`
+      },
+    ]
+  },
+  // ── PLACEHOLDERS (content coming soon) ──
+  {
+    id: 1,
+    title: "Raccoon",
+    emoji: "🦝",
+    img: "https://i.ibb.co.com/rRYrc9k3/Create-a-high-quality-202604061315-removebg-preview.png",
+    category: "Animal",
+    accent: "#7b5ea7",
+    gradient: "linear-gradient(160deg, #7b5ea7 0%, #4a3270 100%)",
+    stats: [
+      { val: "2–3 yrs", key: "Wild Lifespan" },
+      { val: "up to 20 yrs", key: "In Safety" },
+      { val: "24 km/h", key: "Top Speed" },
+      { val: "180°", key: "Foot Rotation" },
+    ],
+    sections: [
+      {
+        icon: "🎭",
+        title: "The Masked Bandit",
+        content: `<p>The raccoon is one of the most recognizable animals in the world, famous for two iconic features:</p>
+        <ul>
+          <li><strong>The Mask:</strong> The black fur around their eyes isn't just for looks — it actually helps them see better at night by reducing glare, much like the black marks football players wear under their eyes.</li>
+          <li><strong>The Ringed Tail:</strong> They have bushy tails with 5 to 7 dark rings, making them instantly recognizable even from a distance.</li>
+        </ul>`
+      },
+      {
+        icon: "🖐️",
+        title: "Super Paws — The Seeing Hands",
+        content: `<ul>
+          <li><strong>Hand-like:</strong> They have five fingers, just like humans (without a thumb). They are incredibly dexterous — able to open jars, door latches, zippers, and even trash can lids.</li>
+          <li><strong>Feeling Everything:</strong> A raccoon's sense of touch is its strongest sense. They have more "touch" nerves in their paws than almost any other animal.</li>
+          <li><strong>The "Washing" Habit:</strong> Raccoons dip their food in water not to clean it — but because their paws become far more sensitive when wet. It helps them "see" exactly what they are holding through touch!</li>
+        </ul>`
+      },
+      {
+        icon: "🧩",
+        title: "Smart and Adaptable",
+        content: `<ul>
+          <li><strong>Problem Solvers:</strong> Scientists have found that raccoons can remember how to solve a complicated lock or puzzle for up to three years!</li>
+          <li><strong>Home Anywhere:</strong> Originally forest creatures near water, raccoons are supremely adaptable — they thrive in cities, farms, and suburbs, making dens in hollow trees, caves, chimneys, and even attics.</li>
+        </ul>`
+      },
+      {
+        icon: "🍽️",
+        title: "Diet: The Ultimate Omnivore",
+        content: `<p>Raccoons are not picky eaters at all — they are omnivores, eating both plants and animals.</p>
+        <ul>
+          <li><strong>In the Wild:</strong> Crawfish, frogs, insects, fruits, nuts, and bird eggs.</li>
+          <li><strong>In the City:</strong> Famous "dumpster divers" — they will eat almost any human food scraps they find in the trash.</li>
+        </ul>`
+      },
+      {
+        icon: "🌙",
+        title: "Night Life",
+        content: `<ul>
+          <li><strong>Night Owls:</strong> Raccoons are nocturnal — they sleep during the day and are most active after dark.</li>
+          <li><strong>Solitary but Social:</strong> Most adult raccoons prefer to live alone, but they sometimes gather in small groups during cold winter months to eat or stay warm together.</li>
+          <li><strong>Expert Climbers:</strong> They can climb down a tree head-first by rotating their back feet a full 180 degrees, and they are excellent swimmers who often hunt in ponds and streams.</li>
+        </ul>`
+      },
+    ]
+  },
+  {
+    id: 2,
+    title: "SLR Camera",
+    emoji: "📷",
+    img: "https://i.ibb.co.com/b5bcST7Y/Create-a-high-quality-202604061314-removebg-preview.png",
+    category: "Object",
+    accent: "#e07b39",
+    gradient: "linear-gradient(160deg, #e07b39 0%, #9e4a12 100%)",
+    stats: [
+      { val: "~100 yrs", key: "First SLR" },
+      { val: "20 fps", key: "Max Speed" },
+      { val: "45°", key: "Mirror Angle" },
+      { val: "DSLR", key: "Modern Type" },
+    ],
+    sections: [
+      {
+        icon: "🔤",
+        title: "What Does SLR Actually Mean?",
+        content: `<p>SLR stands for <strong>Single-Lens Reflex</strong> — and each word tells you something important:</p>
+        <ul>
+          <li><strong>Single-Lens:</strong> The camera uses the exact same lens for looking at the subject and for taking the picture. No separate viewfinder lens needed.</li>
+          <li><strong>Reflex:</strong> A mirror inside "reflects" light upward into your eye so you see precisely what the lens sees.</li>
+        </ul>`
+      },
+      {
+        icon: "🪄",
+        title: "How It Works — The Mirror Magic",
+        content: `<ul>
+          <li><strong>The View:</strong> Looking through the viewfinder, you're peering through a mirror angled at 45°. It reflects light from the lens up into a glass prism at the top, which sends the image to your eye.</li>
+          <li><strong>The Click:</strong> When you press the shutter button, the mirror quickly flips up out of the way.</li>
+          <li><strong>The Capture:</strong> With the mirror gone, light hits the film (old cameras) or digital sensor (modern DSLRs) for a split second — then the mirror snaps back down instantly.</li>
+        </ul>`
+      },
+      {
+        icon: "🔧",
+        title: "The Main Parts",
+        content: `<ul>
+          <li><strong>The Body:</strong> A light-tight box holding all the controls, sensor or film, and the mirror mechanism.</li>
+          <li><strong>The Lens:</strong> A tube of glass that gathers and focuses light. SLRs let you swap lenses — wide-angle for landscapes, telephoto for distant wildlife.</li>
+          <li><strong>The Shutter:</strong> A tiny "curtain" that opens and closes. Open it long for bright pictures; blink it fast to freeze a speeding car mid-air.</li>
+          <li><strong>The Aperture:</strong> A hole inside the lens that grows bigger or smaller — just like the pupil in your eye — controlling how much light enters.</li>
+        </ul>`
+      },
+      {
+        icon: "🏆",
+        title: "Why Professionals Still Love SLRs",
+        content: `<ul>
+          <li><strong>"What You See Is What You Get":</strong> Because of the mirror, the viewfinder image is exactly what the lens captures — zero delay, zero guessing.</li>
+          <li><strong>Manual Control:</strong> You control everything, including making the background blurry while a face stays sharp — this is called Depth of Field.</li>
+          <li><strong>Low Light:</strong> Large sensors and big lenses capture far better images in the dark than any smartphone can.</li>
+        </ul>`
+      },
+      {
+        icon: "📖",
+        title: "Key Terms to Know",
+        content: `<ul>
+          <li><strong>DSLR:</strong> Digital Single-Lens Reflex — an SLR that saves pictures to a memory card instead of film.</li>
+          <li><strong>Exposure:</strong> The "recipe" for a photo — balancing how much light comes in and for how long.</li>
+          <li><strong>Focus:</strong> Moving the glass elements in the lens until the image looks sharp and clear rather than blurry.</li>
+          <li><strong>That Famous Click:</strong> The iconic camera sound is actually the mirror flipping up and snapping back down inside the body!</li>
+        </ul>`
+      },
+    ]
+  },
+  {
+    id: 3,
+    title: "Electric Desk Fan",
+    emoji: "🌀",
+    img: "https://i.ibb.co.com/0RYTd7vy/Create-a-high-quality-202604061314-1-removebg-preview.png",
+    category: "Object",
+    accent: "#3a9bd5",
+    gradient: "linear-gradient(160deg, #3a9bd5 0%, #1a5f8a 100%)",
+    stats: [
+      { val: "1882", key: "First Electric Fan" },
+      { val: "2,000 RPM", key: "Max Spin Speed" },
+      { val: "3–5", key: "Blade Count" },
+      { val: "2 blades", key: "Original Design" },
+    ],
+    sections: [
+      {
+        icon: "💨",
+        title: "What Is It?",
+        content: `<p>An electric desk fan is a machine designed to move air around you. Unlike an air conditioner, a fan does <strong>not</strong> actually make the air colder — instead, it moves the air to help your body <em>feel</em> cooler through a clever trick of science.</p>`
+      },
+      {
+        icon: "⚡",
+        title: "How It Works — The Science of Wind",
+        content: `<ul>
+          <li><strong>The Motor:</strong> Inside the back of the fan is an electric motor. When plugged in, electricity creates a magnetic field that spins the motor extremely fast.</li>
+          <li><strong>The Blades:</strong> Connected to the motor, these blades are angled (tilted). Because of the tilt, they don't just "cut" the air — they actively "push" it forward, creating a breeze.</li>
+          <li><strong>The Wind Chill Effect:</strong> Our bodies naturally sweat to stay cool. When a fan blows air over our skin, it helps sweat evaporate faster — and evaporation takes heat away from our bodies, making us feel chilled even though the air temperature hasn't changed!</li>
+        </ul>`
+      },
+      {
+        icon: "🔩",
+        title: "The Main Parts",
+        content: `<ul>
+          <li><strong>The Motor:</strong> The "heart" of the fan that provides all the spinning power.</li>
+          <li><strong>The Blades:</strong> Usually 3 to 5 plastic or metal wings that move the air.</li>
+          <li><strong>The Guard (The Grill):</strong> A safety cage around the blades that keeps fingers and objects away from fast-spinning danger.</li>
+          <li><strong>The Base:</strong> A heavy bottom that keeps the fan from tipping over while it vibrates.</li>
+          <li><strong>The Oscillator:</strong> A small gear system that makes the fan head turn side to side, spreading air across the whole room.</li>
+        </ul>`
+      },
+      {
+        icon: "🛸",
+        title: "Different Types of Fans",
+        content: `<ul>
+          <li><strong>Axial Fans:</strong> The standard desk fan — air is blown in the same direction as the motor's rod. Most common type.</li>
+          <li><strong>Bladeless Fans:</strong> Look like a hollow ring with no visible blades. A hidden fan in the base pushes air through a tiny slit in the ring — it looks like magic!</li>
+          <li><strong>USB Fans:</strong> Tiny fans that plug into a computer's USB port, designed for just one person's personal cool breeze.</li>
+        </ul>`
+      },
+      {
+        icon: "🌿",
+        title: "Safety & Fun Facts",
+        content: `<ul>
+          <li><strong>Low Energy Hero:</strong> Fans are very "green" — they use much less electricity than air conditioners, making them eco-friendly and cheaper to run.</li>
+          <li><strong>Dust Magnets:</strong> Spinning blades create static electricity, which attracts dust from the air. That's why fan blade edges get "furry" or dusty after a while!</li>
+          <li><strong>Inventor:</strong> The first electric fan was invented by Schuyler Wheeler in 1882 — and it only had two blades.</li>
+          <li><strong>Old vs. New:</strong> Early fans were made of heavy brass and steel; modern fans are mostly lightweight plastic.</li>
+        </ul>`
+      },
+    ]
+  },
+  {
+    id: 4,
+    title: "Tahu Gimbal",
+    emoji: "🍢",
+    img: "https://i.ibb.co.com/0Rd2Dyd9/Create-a-high-quality-202604061314-2-removebg-preview.png",
+    category: "Food",
+    accent: "#e05252",
+    gradient: "linear-gradient(160deg, #e05252 0%, #a02020 100%)",
+    stats: [
+      { val: "Semarang", key: "Origin" },
+      { val: "High", key: "Protein" },
+      { val: "Lunch/Dinner", key: "Best Time" },
+      { val: "Petis Udang", key: "Secret Ingredient" },
+    ],
+    sections: [
+      {
+        icon: "🍽️",
+        title: "What Is Tahu Gimbal?",
+        content: `<p>Tahu Gimbal is a beloved traditional Indonesian dish from Semarang, Central Java. <strong>Tahu</strong> means tofu, while <strong>Gimbal</strong> refers to the crispy, flat shrimp fritter that is the true star of the dish — fried wide, flat, and golden until beautifully crunchy.</p>`
+      },
+      {
+        icon: "🛒",
+        title: "The Core Ingredients",
+        content: `<ul>
+          <li><strong>Fried Tofu:</strong> Cut into small, bite-sized cubes — soft on the inside, golden on the outside.</li>
+          <li><strong>Gimbal (The Shrimp Fritter):</strong> Small shrimp mixed into a flour batter, then fried until wide, flat, and perfectly crunchy. This is what makes the dish unique.</li>
+          <li><strong>Lontong:</strong> Compressed rice cakes wrapped in banana leaves — the hearty "carb base" that makes the meal filling.</li>
+          <li><strong>Vegetables:</strong> Shredded raw cabbage and bean sprouts (tauge) for a fresh, crisp contrast.</li>
+          <li><strong>Fried Egg:</strong> Many sellers crown the dish with a sunny-side-up egg (ceplok) on top.</li>
+        </ul>`
+      },
+      {
+        icon: "🤫",
+        title: "The Secret Sauce",
+        content: `<p>What truly sets Tahu Gimbal apart is the sauce — it's not your ordinary peanut sauce:</p>
+        <ul>
+          <li><strong>Peanut Base:</strong> Ground fried peanuts form the creamy, nutty foundation.</li>
+          <li><strong>Petis Udang:</strong> The secret ingredient — a thick, black, salty fermented shrimp paste that gives the sauce a deep, savory umami flavor and a distinctive dark color.</li>
+          <li><strong>Seasonings:</strong> Garlic, chili (you pick the heat level!), and a splash of vinegar or lime for a bright, tangy finish.</li>
+        </ul>`
+      },
+      {
+        icon: "👨‍🍳",
+        title: "How It Is Served",
+        content: `<p>Tahu Gimbal is assembled fresh, plate by plate — not tossed in a big bowl:</p>
+        <ul>
+          <li>Lontong and tofu are sliced onto the plate first.</li>
+          <li>Fresh cabbage and sprouts are piled on top for crunch.</li>
+          <li>The Gimbal (shrimp fritter) is chopped up and added.</li>
+          <li>The peanut-petis sauce is poured generously over everything.</li>
+          <li>Finished with kerupuk (crackers) and crispy fried shallots.</li>
+        </ul>`
+      },
+      {
+        icon: "❤️",
+        title: "Why People Love It",
+        content: `<ul>
+          <li><strong>The Texture:</strong> Every bite is a journey — softness from the rice cake, chewiness from the tofu, and a big satisfying crunch from the shrimp fritter.</li>
+          <li><strong>The Flavor:</strong> A perfect harmony of sweet, salty, spicy, and savory all in one bowl.</li>
+          <li><strong>High in Protein:</strong> Between the tofu, shrimp, egg, and peanuts, it's a nutritious and filling meal.</li>
+        </ul>`
+      },
+    ]
+  },
+  {
+    id: 5,
+    title: "Lotek",
+    emoji: "🥗",
+    img: "https://i.ibb.co.com/W4Q6c7Jv/Create-a-high-quality-202604061314-3-removebg-preview.png",
+    category: "Food",
+    accent: "#5aab61",
+    gradient: "linear-gradient(160deg, #5aab61 0%, #2d6e33 100%)",
+    stats: [
+      { val: "West Java", key: "Origin" },
+      { val: "Kencur", key: "Key Ingredient" },
+      { val: "Boiled", key: "Veggie Style" },
+      { val: "Cobek", key: "Tool Used" },
+    ],
+    sections: [
+      {
+        icon: "🥣",
+        title: "What Is Lotek?",
+        content: `<p>Lotek is a traditional Sundanese (West Javanese) salad of boiled vegetables dressed in a rich, freshly ground peanut sauce. While it looks similar to Gado-Gado or Pecel, its specific ingredients and preparation method give it a completely unique flavor that sets it apart.</p>`
+      },
+      {
+        icon: "🪨",
+        title: "The Made-to-Order Sauce",
+        content: `<p>The golden rule of Lotek: the sauce is ground fresh for every serving, right before you eat it.</p>
+        <ul>
+          <li><strong>The Cobek:</strong> The seller uses a large stone mortar and pestle (cobek and ulekan), grinding all ingredients by hand per order — no pre-made batches.</li>
+          <li><strong>Kencur — The Key Ingredient:</strong> This small root (Kaempferia galanga) belongs to the ginger family and has a powerful, sharp, and distinctly "cool" aroma. It is what makes Lotek taste like Lotek.</li>
+          <li><strong>Other Sauce Ingredients:</strong> Fried peanuts, brown sugar (gula jawa), garlic, chili peppers, salt, and a pinch of shrimp paste (terasi).</li>
+          <li><strong>The Liquid:</strong> A splash of warm water or tamarind water is added to make the sauce creamy, thick, and pourable.</li>
+        </ul>`
+      },
+      {
+        icon: "🌿",
+        title: "The Vegetable Mix",
+        content: `<p>Lotek vegetables are almost always boiled or blanched — rarely raw. Common choices include:</p>
+        <ul>
+          <li><strong>Spinach or Amaranth</strong> for tender soft greens.</li>
+          <li><strong>Cabbage</strong> for a touch of natural sweetness.</li>
+          <li><strong>Long Beans (Kacang Panjang)</strong> cut into bite-sized pieces.</li>
+          <li><strong>Bean Sprouts (Tauge)</strong> for added moisture and crunch.</li>
+          <li><strong>Chayote (Labu Siam)</strong> — a watery, mildly crunchy squash.</li>
+          <li><strong>Sometimes:</strong> Boiled potato or fried tofu to make it more filling.</li>
+        </ul>`
+      },
+      {
+        icon: "🔍",
+        title: "How It Differs From Similar Dishes",
+        content: `<ul>
+          <li><strong>Lotek vs. Gado-Gado:</strong> Gado-Gado sauce is cooked beforehand in a big pot and uses coconut milk. Lotek sauce is ground fresh in a mortar and uses kencur — no coconut milk.</li>
+          <li><strong>Lotek vs. Pecel:</strong> Pecel sauce is thinner and dominated by citrus leaf (daun jeruk) aroma. Lotek is thicker, sweeter, and more aromatic from the kencur.</li>
+        </ul>`
+      },
+      {
+        icon: "🍽️",
+        title: "Serving & Traditions",
+        content: `<ul>
+          <li><strong>With Rice or Lontong:</strong> Lotek can be eaten alongside warm steamed rice or lontong (compressed rice cakes).</li>
+          <li><strong>The Topping:</strong> Almost always served with Kerupuk Merah (pink/red crackers) or Emping — bitter crackers made from melinjo nuts.</li>
+          <li><strong>Healthy Fast Food:</strong> Considered very nutritious — mostly vegetables with plant-based protein from peanuts and tofu, ground to order with no preservatives.</li>
+        </ul>`
+      },
+    ]
+  },
+  {
+    id: 6,
+    title: "Perfume",
+    emoji: "🌸",
+    img: "https://i.ibb.co.com/mr8sHmbX/Create-a-high-quality-202604061315-3-removebg-preview.png",
+    category: "Object",
+    accent: "#d45f9e",
+    gradient: "linear-gradient(160deg, #d45f9e 0%, #8a2460 100%)",
+    stats: [
+      { val: "Ancient Egypt", key: "First Perfume" },
+      { val: "20–30%", key: "Parfum Oil %" },
+      { val: "Le Nez", key: "Master Creator" },
+      { val: "3 layers", key: "Scent Pyramid" },
+    ],
+    sections: [
+      {
+        icon: "✨",
+        title: "What Is Perfume?",
+        content: `<p>Perfume is a carefully crafted mixture of fragrant essential oils, aroma compounds, and solvents (usually alcohol). Its purpose is to give the human body, objects, or living spaces a beautiful, lasting scent. The art of perfumery dates back to ancient Egypt and Mesopotamia, where incense and resins were the first fragrances ever used.</p>`
+      },
+      {
+        icon: "🔺",
+        title: "The Scent Pyramid — Three Layers of Smell",
+        content: `<p>A perfume doesn't smell like just one thing — it <em>changes over time</em>. This evolution is called the Fragrance Pyramid:</p>
+        <ul>
+          <li><strong>Top Notes (First Impression):</strong> The scents you smell the moment you spray — light and fresh (lemon, mint). They disappear quickly, usually within 5 to 15 minutes.</li>
+          <li><strong>Heart / Middle Notes (The Character):</strong> Once the top notes fade, these emerge as the "soul" of the perfume — often floral (rose, jasmine) or spicy. They last 20 minutes to an hour.</li>
+          <li><strong>Base Notes (The Foundation):</strong> The heaviest, longest-lasting scents — woods, musk, vanilla. They anchor the whole fragrance and can linger on skin for many hours.</li>
+        </ul>`
+      },
+      {
+        icon: "💧",
+        title: "Different Strengths — Concentrations",
+        content: `<p>The difference between perfume types is how much fragrance oil is mixed with alcohol:</p>
+        <ul>
+          <li><strong>Parfum:</strong> The strongest and most expensive (20–30% oil). Can last an entire day.</li>
+          <li><strong>Eau de Parfum (EdP):</strong> Very popular (15–20% oil). Lasts 5 to 8 hours.</li>
+          <li><strong>Eau de Toilette (EdT):</strong> Lighter, great for daytime (5–15% oil). Lasts about 3 hours.</li>
+          <li><strong>Eau de Cologne:</strong> Very light (2–4% oil). Smells citrusy and fresh but fades the quickest.</li>
+        </ul>`
+      },
+      {
+        icon: "🌺",
+        title: "Where Do the Smells Come From?",
+        content: `<ul>
+          <li><strong>Natural Sources:</strong> Flowers (rose, jasmine), fruits (citrus), woods (sandalwood), resins (amber), and even roots or seeds.</li>
+          <li><strong>Synthetic Sources:</strong> Scientists can now create scents in labs that don't exist in nature, or replicate natural ones that are too rare or expensive to harvest — also helping protect endangered plants and animals.</li>
+          <li><strong>Fixatives:</strong> Special ingredients that make a scent stay on skin longer without evaporating too fast.</li>
+        </ul>`
+      },
+      {
+        icon: "🧠",
+        title: "The Science of Smelling",
+        content: `<p>When you spray perfume, alcohol carries the scent molecules into the air. When those molecules reach your nose, they travel to the <strong>olfactory bulb</strong> in your brain — located right next to the regions that handle memories and emotions. That's why a single whiff of a familiar scent can instantly transport you back to a specific person, place, or moment in time.</p>
+        <ul>
+          <li><strong>"The Nose" (Le Nez):</strong> A professional perfume creator is called a Nose. They can identify hundreds of different fragrance ingredients just by smelling them.</li>
+        </ul>`
+      },
+    ]
+  },
+  {
+    id: 7,
+    title: "Olive Oil",
+    emoji: "🫒",
+    img: "https://i.ibb.co.com/YF0rBGQF/Create-a-high-quality-202604061315-1-removebg-preview.png",
+    category: "Food",
+    accent: "#8a9a2e",
+    gradient: "linear-gradient(160deg, #a8b832 0%, #5c6b10 100%)",
+    stats: [
+      { val: "2,000+ yrs", key: "Oldest Trees" },
+      { val: "5 kg", key: "Olives per Litre" },
+      { val: "210°C", key: "Smoke Point" },
+      { val: "EVOO", key: "Top Grade" },
+    ],
+    sections: [
+      {
+        icon: "🫒",
+        title: "What Is Olive Oil?",
+        content: `<p>Olive oil is a liquid fat obtained from olives — the fruit of the <em>Olea europaea</em> tree. What makes it unique is that, unlike most oils (corn, canola) that come from seeds, olive oil is essentially a <strong>fruit juice</strong>, squeezed directly from the fleshy part of the olive. Some trees producing it today are over 2,000 years old!</p>`
+      },
+      {
+        icon: "⚙️",
+        title: "How It Is Made — The Extraction",
+        content: `<p>The process has stayed remarkably similar for thousands of years — machines just make it faster now:</p>
+        <ul>
+          <li><strong>Harvesting:</strong> Olives are picked by hand or by shaking the branches until they fall.</li>
+          <li><strong>Washing & Crushing:</strong> The olives — pits included — are washed then crushed into a thick, chunky paste.</li>
+          <li><strong>Malaxation:</strong> The paste is stirred slowly for 30 to 40 minutes. This helps tiny oil droplets merge into larger drops.</li>
+          <li><strong>Centrifugation:</strong> The paste is spun at high speed. Because oil, water, and solids have different weights, the spinning force separates the golden oil from everything else.</li>
+        </ul>`
+      },
+      {
+        icon: "🏅",
+        title: "Understanding the Grades",
+        content: `<ul>
+          <li><strong>Extra Virgin Olive Oil (EVOO):</strong> The gold standard — the very first oil squeezed, cold-pressed with no heat or chemicals. Strongest flavor and highest vitamin content.</li>
+          <li><strong>Virgin Olive Oil:</strong> Also cold-pressed and natural, but with slightly higher acidity or a less perfect taste than EVOO.</li>
+          <li><strong>Refined Olive Oil:</strong> Treated with heat or charcoal to remove bad smells or flavors. Very light taste, fewer vitamins, higher smoke point — better for frying.</li>
+          <li><strong>Pomace Oil:</strong> The lowest grade, made from leftover skins and pits after the good oil has already been extracted.</li>
+        </ul>`
+      },
+      {
+        icon: "💚",
+        title: "Why Is It Healthy?",
+        content: `<ul>
+          <li><strong>Heart Health:</strong> Packed with monounsaturated fatty acids — the "good" fats — that help lower bad cholesterol and keep the heart strong.</li>
+          <li><strong>Antioxidants:</strong> High-quality olive oil contains polyphenols — tiny molecular bodyguards that protect your cells from damage.</li>
+          <li><strong>Anti-Inflammatory:</strong> Contains oleocanthal, a special compound that acts similarly to natural ibuprofen, reducing inflammation in the body.</li>
+        </ul>`
+      },
+      {
+        icon: "🔥",
+        title: "Cooking Science & Storage",
+        content: `<ul>
+          <li><strong>The Smoke Point:</strong> Refined olive oil handles high heat (~210°C) — great for frying. Extra Virgin has a lower smoke point (~190°C) — best for salads and low-heat cooking.</li>
+          <li><strong>Storage Enemies:</strong> Light, heat, and oxygen are olive oil's worst enemies. That's why quality olive oil is sold in dark glass bottles or tins — to block light and prevent it from going rancid.</li>
+          <li><strong>Color Clue:</strong> Green oil usually comes from younger, unripe olives and tastes peppery or grassy. Golden yellow oil tends to be milder and riper.</li>
+        </ul>`
+      },
+      {
+        icon: "🏛️",
+        title: "Historical Importance",
+        content: `<ul>
+          <li><strong>Liquid Gold:</strong> The ancient Greek poet Homer called olive oil "Liquid Gold" — and the world has agreed ever since.</li>
+          <li><strong>The Olympics:</strong> In ancient Greece, Olympic winners received crowns of olive branches and were rewarded with jars of olive oil as their prize.</li>
+          <li><strong>Fuel:</strong> Before electricity, olive oil was burned in lamps to light homes, temples, and streets throughout the ancient world.</li>
+        </ul>`
+      },
+    ]
+  },
+];
+
+let current = 0;
+
+function goHome() {
+  const ap = document.getElementById('article-page');
+  ap.style.animation = 'fadeOut 0.25s both';
+  setTimeout(() => {
+    ap.style.display = 'none';
+    ap.style.animation = '';
+    document.getElementById('home').style.display = 'flex';
+  }, 220);
+}
+
+function openTopic(idx) {
+  current = idx;
+  document.getElementById('home').style.display = 'none';
+  const ap = document.getElementById('article-page');
+  ap.style.display = 'flex';
+  renderTopic();
+  ap.classList.add('fade-enter');
+  setTimeout(() => ap.classList.remove('fade-enter'), 400);
+  window.scrollTo(0, 0);
+}
+
+function navigate(dir) {
+  const ap = document.getElementById('article-page');
+  ap.style.opacity = '0';
+  ap.style.transition = 'opacity 0.18s';
+  setTimeout(() => {
+    current = Math.max(0, Math.min(topics.length - 1, current + dir));
+    renderTopic();
+    ap.style.opacity = '1';
+    window.scrollTo(0, 0);
+  }, 180);
+}
+
+function renderTopic() {
+  const t = topics[current];
+
+  // header
+  document.getElementById('headerBlob').style.background = t.gradient;
+  const emojiEl = document.getElementById('articleEmoji');
+  emojiEl.src = t.img;
+  emojiEl.alt = t.title;
+  document.getElementById('articleTitle').textContent = t.title;
+  document.getElementById('articleCategory').textContent = t.category;
+  document.getElementById('topicCounter').textContent = `${current + 1} / ${topics.length}`;
+
+  // nav buttons
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === topics.length - 1;
+
+  // middle label: show adjacent topic
+  const adj = current < topics.length - 1 ? topics[current + 1] : topics[current - 1];
+  document.getElementById('navTopicName').textContent = adj ? adj.title : '';
+
+  // accent css var
+  document.getElementById('article-page').style.setProperty('--accent', t.accent);
+
+  // body
+  const body = document.getElementById('articleBody');
+
+  if (t.sections.length === 0) {
+    body.innerHTML = `<div class="coming-soon"><span>${t.emoji}</span>Content coming soon!<br><small style="font-size:0.9rem;font-family:'Nunito',sans-serif;color:#ccc;">Paste the content and I'll add it right away.</small></div>`;
+    return;
+  }
+
+  let html = '';
+
+  // stats
+  if (t.stats.length) {
+    html += `<div class="stats-bar">`;
+    t.stats.forEach((s, i) => {
+      html += `<div class="stat-chip" style="animation-delay:${i*0.08}s">
+        <span class="stat-val">${s.val}</span>
+        <span class="stat-key">${s.key}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // sections
+  t.sections.forEach((sec, i) => {
+    html += `<div class="section" style="--accent:${t.accent};animation-delay:${0.1 + i*0.07}s">
+      <div class="section-title">${sec.icon} ${sec.title}</div>
+      ${sec.content}
+    </div>`;
+  });
+
+  body.innerHTML = html;
+}
+</script>
+</body>
+</html>
