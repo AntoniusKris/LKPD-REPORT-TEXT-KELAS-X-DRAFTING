@@ -1,727 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LKPD — Drafting Report Text</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CLOSED</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@900&display=swap');
 
-  :root {
-    --bg: #fafaf8;
-    --card: #ffffff;
-    --text: #1a1a1a;
-    --muted: #888;
-    --border: #e8e4dc;
-    --accent: #4caf82;
-    --accent2: #3a9bd5;
-    --radius: 18px;
-    --shadow: 0 6px 28px rgba(0,0,0,0.08);
-  }
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: var(--bg);
-    min-height: 100vh;
-    color: var(--text);
-  }
+    :root {
+      --pink: #ff2d78;
+      --dark-pink: #a0004a;
+      --black: #0a0009;
+      --neon-pink: #ff6eb4;
+    }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: radial-gradient(circle, #d0d0c8 1px, transparent 1px);
-    background-size: 26px 26px;
-    opacity: 0.35;
-    pointer-events: none;
-    z-index: 0;
-  }
+    body {
+      background-color: var(--black);
+      color: var(--pink);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
 
-  .wrap {
-    position: relative;
-    z-index: 1;
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 32px 16px 80px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
+    /* ── Animated scanlines overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(255, 45, 120, 0.04) 3px,
+        rgba(255, 45, 120, 0.04) 4px
+      );
+      pointer-events: none;
+      z-index: 10;
+      animation: scanMove 8s linear infinite;
+    }
 
-  /* ── HEADER ── */
-  .lkpd-header {
-    text-align: center;
-    padding: 8px 0 4px;
-  }
-  .lkpd-header h1 {
-    font-family: 'Fredoka One', cursive;
-    font-size: clamp(1.7rem, 5vw, 2.4rem);
-    color: var(--text);
-    line-height: 1.1;
-    margin-bottom: 4px;
-  }
-  .lkpd-header p {
-    color: var(--muted);
-    font-size: 0.88rem;
-    font-weight: 700;
-  }
+    @keyframes scanMove {
+      from { background-position: 0 0; }
+      to   { background-position: 0 100vh; }
+    }
 
-  /* ── STEP BADGE ── */
-  .step-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 0.9rem;
-    color: white;
-    padding: 5px 14px;
-    border-radius: 50px;
-    margin-bottom: 10px;
-  }
-  .step-badge.s1 { background: #4caf82; }
-  .step-badge.s2 { background: #e07b39; }
-  .step-badge.s3 { background: #3a9bd5; }
-  .step-badge.s4 { background: #7b5ea7; }
-  .step-badge.s5 { background: #d45f9e; }
+    /* ── Vignette ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center,
+        transparent 40%,
+        rgba(0,0,0,0.85) 100%
+      );
+      pointer-events: none;
+      z-index: 11;
+    }
 
-  /* ── CARD ── */
-  .card {
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 22px 22px 18px;
-    box-shadow: var(--shadow);
-    border: 1.5px solid var(--border);
-  }
+    /* ── Animated grid background ── */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,45,120,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,45,120,0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridPulse 4s ease-in-out infinite;
+      z-index: 0;
+    }
 
-  .card-title {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.15rem;
-    color: var(--text);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.5; }
+      50%       { opacity: 1; }
+    }
 
-  /* ── FORM ELEMENTS ── */
-  label {
-    display: block;
-    font-size: 0.82rem;
-    font-weight: 800;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    margin-bottom: 5px;
-  }
+    /* ── Floating particles ── */
+    .particles {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
 
-  select, textarea, input[type="text"] {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 0.95rem;
-    background: #fafaf8;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s;
-    appearance: none;
-  }
-  select:focus, textarea:focus, input[type="text"]:focus {
-    border-color: var(--accent);
-    background: #fff;
-  }
-  select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
-  textarea { resize: vertical; line-height: 1.6; min-height: 80px; }
+    .particle {
+      position: absolute;
+      width: 2px;
+      background: var(--pink);
+      animation: fall linear infinite;
+      opacity: 0;
+    }
 
-  .form-row { display: grid; gap: 14px; margin-bottom: 0; }
-  .form-row.two { grid-template-columns: 1fr 1fr; }
-  @media(max-width: 480px) { .form-row.two { grid-template-columns: 1fr; } }
+    @keyframes fall {
+      0%   { transform: translateY(-10px); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
 
-  /* ── TOPIC DISPLAY ── */
-  .topic-display {
-    background: #f0faf6;
-    border: 2px dashed #a8e6c9;
-    border-radius: 12px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-height: 64px;
-  }
-  .topic-display img {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-  }
-  .topic-display .topic-info { flex: 1; }
-  .topic-display .topic-name {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.2rem;
-    color: #1e7a4e;
-  }
-  .topic-display .topic-cat {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #5aab8a;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .topic-display.empty .topic-name { color: var(--muted); font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 700; }
+    /* ── Corner decorations ── */
+    .corner {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      z-index: 12;
+    }
+    .corner::before,
+    .corner::after {
+      content: '';
+      position: absolute;
+      background: var(--pink);
+      box-shadow: 0 0 8px var(--pink);
+    }
+    .corner::before { width: 100%; height: 2px; top: 0; left: 0; }
+    .corner::after  { width: 2px; height: 100%; top: 0; left: 0; }
 
-  /* ── SPIN LINK BUTTON ── */
-  .spin-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #1a1a1a;
-    color: white;
-    text-decoration: none;
-    padding: 11px 24px;
-    border-radius: 50px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 1rem;
-    margin-top: 14px;
-    transition: transform 0.15s, opacity 0.15s;
-  }
-  .spin-link:hover { transform: scale(1.04); opacity: 0.9; }
+    .corner.tl { top: 16px; left: 16px; }
+    .corner.tr { top: 16px; right: 16px; transform: scaleX(-1); }
+    .corner.bl { bottom: 16px; left: 16px; transform: scaleY(-1); }
+    .corner.br { bottom: 16px; right: 16px; transform: scale(-1); }
 
-  /* ── INSTRUCTION BOX ── */
-  .instruction {
-    background: #fff9ec;
-    border-left: 4px solid #f5c64e;
-    border-radius: 0 10px 10px 0;
-    padding: 12px 16px;
-    font-size: 0.88rem;
-    color: #6b5a1e;
-    line-height: 1.6;
-    margin-bottom: 16px;
-  }
-  .instruction strong { font-weight: 800; }
+    /* ── Center card ── */
+    .card {
+      position: relative;
+      z-index: 20;
+      text-align: center;
+      padding: 48px 40px;
+      border: 1px solid var(--dark-pink);
+      background: rgba(10, 0, 9, 0.75);
+      backdrop-filter: blur(4px);
+      max-width: 90vw;
+      box-shadow:
+        0 0 20px rgba(255,45,120,0.3),
+        inset 0 0 30px rgba(255,45,120,0.05);
+      animation: cardBreath 3s ease-in-out infinite;
+    }
 
-  /* ── SAMPLE LABEL ── */
-  .sample-box {
-    background: #f4f1fb;
-    border-left: 4px solid #9b8fdb;
-    border-radius: 0 10px 10px 0;
-    padding: 12px 16px;
-    font-size: 0.87rem;
-    color: #3e2e7a;
-    line-height: 1.65;
-    margin-bottom: 16px;
-  }
-  .sample-box .sample-title {
-    font-weight: 800;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-    color: #7b68c8;
-  }
+    @keyframes cardBreath {
+      0%, 100% { box-shadow: 0 0 20px rgba(255,45,120,0.3), inset 0 0 30px rgba(255,45,120,0.05); }
+      50%       { box-shadow: 0 0 50px rgba(255,45,120,0.6), inset 0 0 50px rgba(255,45,120,0.1); }
+    }
 
-  /* ── ORGANIZER GRID ── */
-  .organizer-section {
-    margin-bottom: 20px;
-  }
-  .organizer-section .section-label {
-    font-family: 'Fredoka One', cursive;
-    font-size: 1rem;
-    padding: 6px 14px;
-    border-radius: 6px;
-    display: inline-block;
-    margin-bottom: 12px;
-  }
-  .org-part1 .section-label { background: #e0f2ea; color: #1a6b4a; }
-  .org-part2 .section-label { background: #dff0fc; color: #1a527a; }
+    /* corner accents on card */
+    .card::before,
+    .card::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-color: var(--neon-pink);
+      border-style: solid;
+    }
+    .card::before {
+      top: -1px; left: -1px;
+      border-width: 2px 0 0 2px;
+    }
+    .card::after {
+      bottom: -1px; right: -1px;
+      border-width: 0 2px 2px 0;
+    }
 
-  .organizer-fields { display: flex; flex-direction: column; gap: 12px; }
+    /* ── Error badge ── */
+    .badge {
+      display: inline-block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(0.6rem, 2vw, 0.75rem);
+      letter-spacing: 0.25em;
+      color: var(--black);
+      background: var(--pink);
+      padding: 4px 14px;
+      margin-bottom: 28px;
+      text-transform: uppercase;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+      animation: badgeBlink 2.5s step-start infinite;
+    }
 
-  .field-group { display: flex; flex-direction: column; gap: 5px; }
-  .field-group .field-hint { font-size: 0.8rem; color: var(--muted); font-weight: 600; font-style: italic; margin-top: 2px; }
+    @keyframes badgeBlink {
+      0%, 90%, 100% { opacity: 1; }
+      92%, 96%       { opacity: 0; }
+    }
 
-  /* ── FULL TEXT AREA ── */
-  .text-structure-label {
-    font-size: 0.78rem;
-    font-weight: 800;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    margin-bottom: 4px;
-    margin-top: 16px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .text-structure-label span {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
+    /* ── Main glitch text ── */
+    .glitch-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
 
-  /* ── RESOURCE BAR ── */
-  .resource-bar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-  .resource-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 18px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 800;
-    font-size: 0.85rem;
-    transition: transform 0.15s, opacity 0.15s;
-    border: 2px solid transparent;
-  }
-  .resource-btn:hover { transform: scale(1.04); opacity: 0.88; }
-  .resource-btn.enc { background: #fff3e0; color: #9e5a0a; border-color: #f5c18a; }
-  .resource-btn.web { background: #e8f4fd; color: #155a8a; border-color: #91c8f0; }
+    .glitch {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.4rem, 6vw, 3rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #fff;
+      text-shadow:
+        0 0 10px var(--pink),
+        0 0 30px var(--pink);
+      position: relative;
+      display: inline-block;
+      animation: glitchBase 5s infinite;
+    }
 
-  /* ── SUBMIT BUTTON ── */
-  .submit-btn {
-    width: 100%;
-    padding: 15px;
-    background: linear-gradient(135deg, #4caf82, #3a9bd5);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-family: 'Fredoka One', cursive;
-    font-size: 1.15rem;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.15s;
-    margin-top: 8px;
-    letter-spacing: 0.3px;
-  }
-  .submit-btn:hover { opacity: 0.9; transform: scale(1.01); }
-  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
 
-  /* ── SUCCESS TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #1a1a1a;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(.34,1.56,.64,1);
-    z-index: 999;
-    white-space: nowrap;
-  }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+    .glitch::before {
+      color: var(--neon-pink);
+      text-shadow: -2px 0 cyan;
+      animation: glitchTop 3s infinite linear;
+    }
 
-  /* ── WORD COUNT ── */
-  .word-count {
-    font-size: 0.78rem;
-    color: var(--muted);
-    font-weight: 700;
-    text-align: right;
-    margin-top: 4px;
-  }
-  .word-count.ok { color: #4caf82; }
+    .glitch::after {
+      color: cyan;
+      text-shadow: 2px 0 var(--pink);
+      animation: glitchBot 2.5s infinite linear;
+    }
 
-  /* ── PROGRESS STEPS ── */
-  .progress-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 8px;
-  }
-  .prog-step {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: #e8e4dc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Fredoka One', cursive;
-    font-size: 0.85rem;
-    color: #aaa;
-    position: relative;
-    z-index: 1;
-    transition: background 0.3s, color 0.3s;
-  }
-  .prog-step.done { background: #4caf82; color: white; }
-  .prog-step.active { background: #1a1a1a; color: white; }
-  .prog-line {
-    height: 3px;
-    width: 44px;
-    background: #e8e4dc;
-    transition: background 0.3s;
-  }
-  .prog-line.done { background: #4caf82; }
+    @keyframes glitchBase {
+      0%, 92%, 100% { transform: none; }
+      93%  { transform: skewX(-5deg) translateX(3px); }
+      94%  { transform: skewX(4deg) translateX(-2px); }
+      95%  { transform: none; }
+      97%  { transform: translateX(4px); }
+      98%  { transform: translateX(-4px); }
+    }
 
-  /* separator */
-  .divider { border: none; border-top: 1.5px dashed var(--border); }
-</style>
+    @keyframes glitchTop {
+      0%,80%,100% { clip-path: polygon(0 0,100% 0,100% 0%,0 0%); transform: none; opacity: 0; }
+      81% { clip-path: polygon(0 10%,100% 10%,100% 30%,0 30%); transform: translate(-4px,0); opacity: 1; }
+      83% { clip-path: polygon(0 50%,100% 50%,100% 60%,0 60%); transform: translate(4px,0); opacity: 1; }
+      85% { clip-path: polygon(0 70%,100% 70%,100% 80%,0 80%); transform: translate(-3px,0); opacity: 1; }
+      87% { opacity: 0; }
+    }
+
+    @keyframes glitchBot {
+      0%,75%,100% { clip-path: polygon(0 0,100% 0,100% 0%,0 0%); transform: none; opacity: 0; }
+      76% { clip-path: polygon(0 60%,100% 60%,100% 75%,0 75%); transform: translate(5px,0); opacity: 1; }
+      78% { clip-path: polygon(0 20%,100% 20%,100% 35%,0 35%); transform: translate(-3px,0); opacity: 1; }
+      80% { clip-path: polygon(0 80%,100% 80%,100% 95%,0 95%); transform: translate(2px,0); opacity: 1; }
+      82% { opacity: 0; }
+    }
+
+    /* ── Subtext ── */
+    .subtext {
+      font-size: clamp(0.65rem, 2.2vw, 0.85rem);
+      letter-spacing: 0.3em;
+      color: var(--dark-pink);
+      text-transform: uppercase;
+      animation: flicker 4s infinite;
+    }
+
+    @keyframes flicker {
+      0%,97%,100% { opacity: 1; }
+      98%          { opacity: 0.1; }
+      99%          { opacity: 0.8; }
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--pink), transparent);
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .divider::before {
+      content: '//';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(10,0,9,0.9);
+      padding: 0 8px;
+      font-size: 0.7rem;
+      color: var(--pink);
+    }
+
+    /* ── Bottom status ── */
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: clamp(0.5rem, 1.8vw, 0.65rem);
+      color: rgba(255,45,120,0.45);
+      margin-top: 24px;
+      letter-spacing: 0.15em;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pink);
+      margin-right: 6px;
+      box-shadow: 0 0 6px var(--pink);
+      animation: dotPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes dotPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%       { transform: scale(1.6); opacity: 0.5; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="wrap">
+  <div class="grid-bg"></div>
 
-  <!-- HEADER -->
-  <div class="lkpd-header">
-    <h1>📝 Drafting Report Text</h1>
-    <p>Lembar Kerja Peserta Didik · Multimodal Writing · Grade X</p>
-  </div>
+  <!-- Particles -->
+  <div class="particles" id="particles"></div>
 
-  <!-- PROGRESS -->
-  <div class="progress-row" id="progressRow">
-    <div class="prog-step active" id="ps1">1</div>
-    <div class="prog-line" id="pl1"></div>
-    <div class="prog-step" id="ps2">2</div>
-    <div class="prog-line" id="pl2"></div>
-    <div class="prog-step" id="ps3">3</div>
-    <div class="prog-line" id="pl3"></div>
-    <div class="prog-step" id="ps4">4</div>
-    <div class="prog-line" id="pl4"></div>
-    <div class="prog-step" id="ps5">5</div>
-  </div>
+  <!-- Corner brackets -->
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
 
-  <!-- ══ STEP 1: IDENTITY ══ -->
-  <div class="card" id="cardStep1">
-    <div class="step-badge s1">Step 1 · Identity</div>
-    <div class="card-title">👩‍🎓 Who Are You?</div>
-    <div class="form-row two">
-      <div>
-        <label>Class</label>
-        <select id="selClass" onchange="loadNames()">
-          <option value="">— Select class —</option>
-          <option value="XA">X A</option>
-          <option value="XB">X B</option>
-        </select>
-      </div>
-      <div>
-        <label>Your Name</label>
-        <select id="selName" disabled>
-          <option value="">— Select class first —</option>
-        </select>
-      </div>
+  <!-- Main card -->
+  <div class="card">
+    <div class="badge">&#9888; Access Denied</div>
+
+    <div class="glitch-wrap">
+      <div class="glitch" data-text="The Assignment / Task">The Assignment / Task</div>
+    </div>
+    <div class="glitch-wrap">
+      <div class="glitch" data-text="Is Closed Already.">Is Closed Already.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="subtext">Submission window terminated</div>
+
+    <div class="status-row">
+      <span><span class="dot"></span>STATUS: LOCKED</span>
+      <span>ERR_403</span>
+      <span>SYS::OFFLINE</span>
     </div>
   </div>
 
-  <!-- ══ STEP 2: TOPIC ══ -->
-  <div class="card" id="cardStep2">
-    <div class="step-badge s2">Step 2 · Topic</div>
-    <div class="card-title">🎡 Spin to Get Your Topic</div>
+  <script>
+    // Generate falling particles
+    const container = document.getElementById('particles');
+    const COUNT = 30;
 
-    <div class="instruction">
-      <strong>What to do:</strong> Click the button below to open the Wonder Wheel in a new tab. Spin it to get your topic. Then come back here and select your topic from the dropdown.
-    </div>
+    for (let i = 0; i < COUNT; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
 
-    <div class="form-row">
-      <div>
-        <label>My Topic</label>
-        <select id="selTopic" onchange="updateTopicDisplay()">
-          <option value="">— Select your topic —</option>
-          <option value="Elephant">🐘 Elephant (Animal)</option>
-          <option value="Raccoon">🦝 Raccoon (Animal)</option>
-          <option value="SLR Camera">📷 SLR Camera (Object)</option>
-          <option value="Desk Fan">🌀 Electric Desk Fan (Object)</option>
-          <option value="Tahu Gimbal">🍢 Tahu Gimbal (Food)</option>
-          <option value="Lotek">🥗 Lotek (Food)</option>
-          <option value="Perfume">🌸 Perfume (Object)</option>
-          <option value="Olive Oil">🫒 Olive Oil (Food)</option>
-        </select>
-      </div>
-    </div>
+      const h = Math.random() * 60 + 10;   // height 10–70px
+      const dur = Math.random() * 6 + 4;   // 4–10s
+      const delay = Math.random() * 10;    // 0–10s delay
+      const left = Math.random() * 100;    // horizontal position
 
-    <div class="topic-display empty" id="topicDisplay" style="margin-top:14px;">
-      <div class="topic-info">
-        <div class="topic-name">No topic selected yet</div>
-      </div>
-    </div>
-
-    <a href="https://antoniuskris.github.io/LKPD-REPORT-TEXT-KELAS-X-DRAFTING/wheel.html" target="_blank" class="spin-link">✨ Open Wonder Wheel</a>
-  </div>
-
-  <!-- ══ STEP 3: RESOURCES ══ -->
-  <div class="card" id="cardStep3">
-    <div class="step-badge s3">Step 3 · Resources</div>
-    <div class="card-title">📚 Read Before You Write</div>
-    <div class="instruction">
-      <strong>Main source:</strong> Use the Wonder Encyclopedia as your primary reference. It has everything you need about your topic. You may add extra information from the internet as a secondary source.
-    </div>
-    <div class="resource-bar">
-      <a href="https://antoniuskris.github.io/LKPD-REPORT-TEXT-KELAS-X-DRAFTING/encyclopedia.html" target="_blank" class="resource-btn enc">📖 Open Wonder Encyclopedia</a>
-      <a href="https://www.google.com" target="_blank" class="resource-btn web">🌐 Additional Search</a>
-    </div>
-  </div>
-
-  <!-- ══ STEP 4: IDEA ORGANIZER ══ -->
-  <div class="card" id="cardStep4">
-    <div class="step-badge s4">Step 4 · Idea Organizer</div>
-    <div class="card-title">🗂️ Plan Your Draft</div>
-
-    <div class="instruction">
-      <strong>Before writing</strong>, fill in the idea boxes below. Use short notes or bullet points — not full sentences yet. This is your brainstorm map!
-    </div>
-
-    <div class="sample-box">
-      <div class="sample-title">📌 Sample (Topic: Elephant)</div>
-      <b>Part 1 — General ID:</b> What → big land animal with trunk &amp; tusks | Category → Animal (Mammal) | Where found → Africa &amp; Asia<br>
-      <b>Part 2 — Details:</b> ① Body: trunk = 40,000 muscles, ears cool blood ② Diet: 150 kg/day, plants only ③ Behavior: family led by matriarch ④ Habitat: savanna, jungle ⑤ Importance: plants trees via seeds in dung
-    </div>
-
-    <!-- PART 1 -->
-    <div class="organizer-section org-part1">
-      <div class="section-label">📌 Part 1 — General Identification</div>
-      <div class="organizer-fields">
-        <div class="field-group">
-          <label>What is it? (definition in your own words)</label>
-          <textarea id="org_what" rows="2" placeholder="e.g. A large land mammal known for its long trunk and ivory tusks…"></textarea>
-        </div>
-        <div class="form-row two">
-          <div class="field-group">
-            <label>Category</label>
-            <input type="text" id="org_cat" placeholder="e.g. Animal / Food / Object">
-          </div>
-          <div class="field-group">
-            <label>Origin / Where Found</label>
-            <input type="text" id="org_origin" placeholder="e.g. Africa and Asia">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="divider" style="margin: 16px 0;">
-
-    <!-- PART 2 -->
-    <div class="organizer-section org-part2">
-      <div class="section-label">🔍 Part 2 — Detail Description (min. 5 aspects)</div>
-      <div class="organizer-fields">
-        <div class="field-group">
-          <label>① Aspect 1</label>
-          <input type="text" id="org_d1_label" placeholder="Aspect name (e.g. Physical Appearance / Ingredients)">
-          <textarea id="org_d1" rows="2" placeholder="Key points about this aspect…"></textarea>
-        </div>
-        <div class="field-group">
-          <label>② Aspect 2</label>
-          <input type="text" id="org_d2_label" placeholder="Aspect name">
-          <textarea id="org_d2" rows="2" placeholder="Key points…"></textarea>
-        </div>
-        <div class="field-group">
-          <label>③ Aspect 3</label>
-          <input type="text" id="org_d3_label" placeholder="Aspect name">
-          <textarea id="org_d3" rows="2" placeholder="Key points…"></textarea>
-        </div>
-        <div class="field-group">
-          <label>④ Aspect 4</label>
-          <input type="text" id="org_d4_label" placeholder="Aspect name">
-          <textarea id="org_d4" rows="2" placeholder="Key points…"></textarea>
-        </div>
-        <div class="field-group">
-          <label>⑤ Aspect 5</label>
-          <input type="text" id="org_d5_label" placeholder="Aspect name">
-          <textarea id="org_d5" rows="2" placeholder="Key points…"></textarea>
-        </div>
-        <div class="field-group">
-          <label>⑥ Aspect 6 (optional)</label>
-          <input type="text" id="org_d6_label" placeholder="Aspect name (optional)">
-          <textarea id="org_d6" rows="2" placeholder="Key points… (optional)"></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ STEP 5: FULL DRAFT ══ -->
-  <div class="card" id="cardStep5">
-    <div class="step-badge s5">Step 5 · Full Draft</div>
-    <div class="card-title">✍️ Write Your Report Text</div>
-
-    <div class="instruction">
-      <strong>Now write your full report text</strong> using your idea organizer above as a guide. Write in <strong>English</strong>. Use complete sentences and paragraphs.
-    </div>
-
-    <div class="sample-box">
-      <div class="sample-title">📌 Sample Draft Structure</div>
-      <b>[Part 1 — General Identification]</b><br>
-      An elephant is the largest land animal on Earth. It belongs to the animal kingdom and is classified as a mammal. There are three species of elephants — the African Bush Elephant, the African Forest Elephant, and the Asian Elephant — and they can be found across Africa and parts of Asia.<br><br>
-      <b>[Part 2 — Detail Description]</b><br>
-      <b>Physical Appearance:</b> Elephants are known for their massive grey bodies, large fan-like ears, and most distinctively, their long trunk — a fusion of the nose and upper lip that contains about 40,000 muscles…<br>
-      <b>Diet:</b> Elephants are herbivores that consume up to 150 kilograms of plants per day…<br>
-      <i>(continue with aspects 3, 4, 5…)</i>
-    </div>
-
-    <div class="text-structure-label">
-      <span style="background:#4caf82;"></span>Part 1 — General Identification
-    </div>
-    <textarea id="draft_part1" rows="5" placeholder="Write your General Identification paragraph here. Introduce what your topic is, its category, and where it comes from or is found…" oninput="updateWordCount()"></textarea>
-
-    <div class="text-structure-label" style="margin-top:16px;">
-      <span style="background:#3a9bd5;"></span>Part 2 — Detail Description
-    </div>
-    <textarea id="draft_part2" rows="14" placeholder="Write your Detail Description here. Cover at least 5 aspects. You can use bold headers (e.g. Physical Appearance:) to organise each aspect…" oninput="updateWordCount()"></textarea>
-
-    <div class="word-count" id="wordCount">0 words</div>
-
-    <button class="submit-btn" id="submitBtn" onclick="submitDraft()">🚀 Submit My Draft</button>
-  </div>
-
-</div>
-
-<div class="toast" id="toast">✅ Draft submitted successfully!</div>
-
-<script>
-const students = {
-  XA: ["Adelce Anastasya Mairapea","Agrylia Wyanet Juventya Awie","Angela Octavia Maryant Gultom","Bergita Watereyau","Christine Hu","City Paradila Magai","Dominika Viarenatta Renaning Sukma","Eliora Judith Naomi","Ermelinda Bintang Prasanti","Gabriella Patricia Kasihiuw","Grasella E.K Uropmabin","Keysha Kinantya Sava","Kresensia Bernarda Takati","Lea Wetapo","Liana Jovita Juwanto","Margaretha Amelia","Megawati Mayor","Merielven Thentia Tissandana","Meyta Clarensia","Nadia","Natasha Wijaya","Natasya Listyoprabowo","Noberrta Diwitau","Tamara Marice Aytem","Thisna Veronika","Vanes Andara","Veronica Yozinnia Absalon","Alifah Deliana Mecibaru","Yessika Lani Febriana"],
-  XB: ["Amartya Bhumikensaras Setiono","Aprillia Stephani Alom","Aurelia Stephania","Bernadeta Claudia Oktavia Quartzia","Chelsea Ruditha","Claudya Priscilla Natasha","Domina Nambagani","Elisabet Jamang","Ester Selvi Yosef","Gloria Clara Anastasya","Hara Nadhira","Herlina Noventhy Ciwe","Jessica Christabella Nelwan","Jezania Lakeizha Aurelia","Lilian Mimi Arisoi","Marcellina Anindita Rahning Pramesti","Maria Jessica Lovy Maurent","Mersil Jusmina Mansoben","Noperince Janampa","Novelin Yulingka Krey","Priska Katagame","Rachel Cory Victoria Letsoin","Sara Fillaria Siwalette","Sharon Evangelista Dodu","Vichieta Dyara","Vincentia Belva Ayuadytia Sinandang","Wihelmina Elmabertine Pambudi","Wilma Arina Degrue Wairon","Yessiska Lina Febriana","Yulia Esti Kanonggopme","Yustina Amanda Vanya Yape"]
-};
-
-const topicMeta = {
-  "Elephant":   { cat: "Animal",  img: "https://i.ibb.co.com/3yLrWR4S/Create-a-high-quality-202604061314-4-removebg-preview.png" },
-  "Raccoon":    { cat: "Animal",  img: "https://i.ibb.co.com/rRYrc9k3/Create-a-high-quality-202604061315-removebg-preview.png" },
-  "SLR Camera": { cat: "Object",  img: "https://i.ibb.co.com/b5bcST7Y/Create-a-high-quality-202604061314-removebg-preview.png" },
-  "Desk Fan":   { cat: "Object",  img: "https://i.ibb.co.com/0RYTd7vy/Create-a-high-quality-202604061314-1-removebg-preview.png" },
-  "Tahu Gimbal":{ cat: "Food",    img: "https://i.ibb.co.com/0Rd2Dyd9/Create-a-high-quality-202604061314-2-removebg-preview.png" },
-  "Lotek":      { cat: "Food",    img: "https://i.ibb.co.com/W4Q6c7Jv/Create-a-high-quality-202604061314-3-removebg-preview.png" },
-  "Perfume":    { cat: "Object",  img: "https://i.ibb.co.com/mr8sHmbX/Create-a-high-quality-202604061315-3-removebg-preview.png" },
-  "Olive Oil":  { cat: "Food",    img: "https://i.ibb.co.com/YF0rBGQF/Create-a-high-quality-202604061315-1-removebg-preview.png" },
-};
-
-// GAS Web App URL — replace after deploying
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzWbD-As9ECrWCV64xaBdWcyprj6_fsuqL1q3UHwE5X8S6_9Q5i_8Oo_wiLLdgzN2hT/exec";
-
-function loadNames() {
-  const cls = document.getElementById('selClass').value;
-  const sel = document.getElementById('selName');
-  sel.innerHTML = '<option value="">— Select your name —</option>';
-  if (cls && students[cls]) {
-    students[cls].forEach(n => {
-      const o = document.createElement('option');
-      o.value = n; o.textContent = n;
-      sel.appendChild(o);
-    });
-    sel.disabled = false;
-  } else {
-    sel.disabled = true;
-  }
-  updateProgress();
-}
-
-function updateTopicDisplay() {
-  const val = document.getElementById('selTopic').value;
-  const disp = document.getElementById('topicDisplay');
-  if (val && topicMeta[val]) {
-    const m = topicMeta[val];
-    disp.classList.remove('empty');
-    disp.innerHTML = `<img src="${m.img}" alt="${val}"><div class="topic-info"><div class="topic-name">${val}</div><div class="topic-cat">${m.cat}</div></div>`;
-  } else {
-    disp.classList.add('empty');
-    disp.innerHTML = `<div class="topic-info"><div class="topic-name">No topic selected yet</div></div>`;
-  }
-  updateProgress();
-}
-
-function updateWordCount() {
-  const p1 = document.getElementById('draft_part1').value;
-  const p2 = document.getElementById('draft_part2').value;
-  const words = (p1 + ' ' + p2).trim().split(/\s+/).filter(w => w.length > 0).length;
-  const el = document.getElementById('wordCount');
-  el.textContent = words + ' words';
-  el.className = 'word-count' + (words >= 150 ? ' ok' : '');
-  updateProgress();
-}
-
-function updateProgress() {
-  const cls = document.getElementById('selClass').value;
-  const name = document.getElementById('selName').value;
-  const topic = document.getElementById('selTopic').value;
-  const org = document.getElementById('org_d1').value;
-  const draft = (document.getElementById('draft_part1').value + document.getElementById('draft_part2').value).trim();
-
-  const steps = [
-    cls && name,
-    !!topic,
-    true, // resources always available
-    !!org,
-    draft.length > 50
-  ];
-
-  steps.forEach((done, i) => {
-    const num = i + 1;
-    const el = document.getElementById('ps' + num);
-    if (done) { el.className = 'prog-step done'; el.textContent = '✓'; }
-    else if (i === steps.findIndex(s => !s)) { el.className = 'prog-step active'; el.textContent = num; }
-    else { el.className = 'prog-step'; el.textContent = num; }
-
-    if (i < 4) {
-      const line = document.getElementById('pl' + num);
-      line.className = 'prog-line' + (done ? ' done' : '');
+      p.style.cssText = `
+        left: ${left}%;
+        height: ${h}px;
+        animation-duration: ${dur}s;
+        animation-delay: -${delay}s;
+        opacity: ${Math.random() * 0.5 + 0.1};
+        width: ${Math.random() > 0.7 ? '2px' : '1px'};
+      `;
+      container.appendChild(p);
     }
-  });
-}
 
-async function submitDraft() {
-  const cls   = document.getElementById('selClass').value;
-  const name  = document.getElementById('selName').value;
-  const topic = document.getElementById('selTopic').value;
-  const org_what   = document.getElementById('org_what').value;
-  const org_cat    = document.getElementById('org_cat').value;
-  const org_origin = document.getElementById('org_origin').value;
-  const aspects = [1,2,3,4,5,6].map(i => ({
-    label: document.getElementById('org_d'+i+'_label').value,
-    notes: document.getElementById('org_d'+i).value
-  }));
-  const draft_p1 = document.getElementById('draft_part1').value;
-  const draft_p2 = document.getElementById('draft_part2').value;
-
-  if (!cls || !name) { alert('Please select your class and name first.'); return; }
-  if (!topic) { alert('Please select your topic first.'); return; }
-  if (!draft_p1.trim() || !draft_p2.trim()) { alert('Please write both parts of your report text before submitting.'); return; }
-
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Submitting…';
-
-  const payload = {
-    timestamp: new Date().toISOString(),
-    class: cls,
-    name,
-    topic,
-    organizer: { what: org_what, category: org_cat, origin: org_origin, aspects },
-    draft_general_id: draft_p1,
-    draft_detail: draft_p2
-  };
-
-  try {
-    await fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    showToast('✅ Draft submitted! Great job!');
-    btn.textContent = '✅ Submitted!';
-  } catch (e) {
-    alert('Submission failed. Please check your connection and try again.');
-    btn.disabled = false;
-    btn.textContent = '🚀 Submit My Draft';
-  }
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-updateProgress();
-</script>
+    // Occasional full-page glitch flash
+    setInterval(() => {
+      if (Math.random() < 0.3) {
+        document.body.style.filter = 'hue-rotate(180deg) brightness(1.4)';
+        setTimeout(() => document.body.style.filter = '', 80);
+      }
+    }, 3000);
+  </script>
 </body>
 </html>
